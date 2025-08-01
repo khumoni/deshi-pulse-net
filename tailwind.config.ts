@@ -19,6 +19,8 @@ export default {
 		},
 		extend: {
 			colors: {
+				'green-bangladesh': 'hsl(var(--primary))',
+				'red-bangladesh': 'hsl(var(--accent-red))',
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
