@@ -53,75 +53,97 @@ export const bangladeshLocations = {
 
 export const categories = [
   {
-    id: "emergency-info",
-    name: "জরুরি তথ্য",
-    nameEn: "Emergency Info",
-    icon: "📢",
+    id: "submit-info",
+    name: "আমি তথ্য দিতে চাই",
+    nameEn: "I Want to Submit Info",
+    icon: "📝",
+    color: "bg-green-100 text-green-700",
     subcategories: [
-      { id: "urgent-news", name: "আজকের জরুরি খবর", nameEn: "Today's Urgent News" },
-      { id: "electricity-notice", name: "বিদ্যুৎ সংক্রান্ত নোটিশ", nameEn: "Electricity Notices" },
-      { id: "weather-alert", name: "আবহাওয়ার সতর্কবার্তা", nameEn: "Weather Alert" },
-      { id: "road-traffic", name: "রাস্তা/জ্যাম তথ্য", nameEn: "Road/Traffic Info" },
-      { id: "health-alert", name: "স্বাস্থ্য সতর্কতা", nameEn: "Health Alert" },
-      { id: "local-news", name: "স্থানীয় সংবাদ", nameEn: "Local News" },
-      { id: "govt-notice", name: "সরকারি বিজ্ঞপ্তি", nameEn: "Government Notice" }
+      { id: "emergency-report", name: "জরুরি সংবাদ", nameEn: "Emergency Report" },
+      { id: "service-info", name: "সেবা তথ্য", nameEn: "Service Information" },
+      { id: "market-update", name: "বাজার আপডেট", nameEn: "Market Update" },
+      { id: "community-news", name: "কমিউনিটি খবর", nameEn: "Community News" }
     ]
   },
   {
-    id: "shops-market",
-    name: "দোকান ও বাজার",
-    nameEn: "Shops & Markets",
-    icon: "🛍️",
+    id: "happening-now",
+    name: "ঘটছে এখন",
+    nameEn: "Happening Now",
+    icon: "🔴",
+    color: "bg-red-100 text-red-700",
     subcategories: [
-      { id: "nearby-shops", name: "নিকটস্থ দোকান", nameEn: "Nearby Shops" },
-      { id: "electronics-hardware", name: "ইলেকট্রনিক / হার্ডওয়্যার", nameEn: "Electronics/Hardware" },
-      { id: "clothing", name: "জামা-কাপড়", nameEn: "Clothing" },
-      { id: "pharmacy", name: "ফার্মেসি", nameEn: "Pharmacy" },
-      { id: "market-prices", name: "আজকের বাজার দর", nameEn: "Today's Market Prices" },
-      { id: "market-days", name: "হাট দিন ও অবস্থান", nameEn: "Market Days & Location" }
+      { id: "live-events", name: "লাইভ ইভেন্ট", nameEn: "Live Events" },
+      { id: "traffic-update", name: "ট্রাফিক আপডেট", nameEn: "Traffic Update" },
+      { id: "breaking-news", name: "ব্রেকিং নিউজ", nameEn: "Breaking News" },
+      { id: "current-situation", name: "বর্তমান পরিস্থিতি", nameEn: "Current Situation" }
     ]
   },
   {
-    id: "service-providers",
-    name: "সার্ভিস প্রোভাইডার",
-    nameEn: "Service Providers",
-    icon: "🧰",
+    id: "alert-info",
+    name: "এলার্ট তথ্য",
+    nameEn: "Alert Information",
+    icon: "⚠️",
+    color: "bg-yellow-100 text-yellow-700",
     subcategories: [
+      { id: "power-outage", name: "বিদ্যুৎ বিভ্রাট", nameEn: "Power Outage" },
+      { id: "water-shortage", name: "পানি সংকট", nameEn: "Water Shortage" },
+      { id: "road-closure", name: "রাস্তা বন্ধ", nameEn: "Road Closure" },
+      { id: "health-alert", name: "স্বাস্থ্য সতর্কতা", nameEn: "Health Alert" }
+    ]
+  },
+  {
+    id: "weather-info",
+    name: "বাতাস ও আবহাওয়া",
+    nameEn: "Wind & Weather",
+    icon: "🌤️",
+    color: "bg-blue-100 text-blue-700",
+    subcategories: [
+      { id: "weather-forecast", name: "আবহাওয়া পূর্বাভাস", nameEn: "Weather Forecast" },
+      { id: "storm-warning", name: "ঝড়ের সতর্কতা", nameEn: "Storm Warning" },
+      { id: "rain-update", name: "বৃষ্টির আপডেট", nameEn: "Rain Update" },
+      { id: "temperature", name: "তাপমাত্রা", nameEn: "Temperature" }
+    ]
+  },
+  {
+    id: "local-services",
+    name: "স্থানীয় সেবা",
+    nameEn: "Local Services",
+    icon: "🏥",
+    color: "bg-purple-100 text-purple-700",
+    subcategories: [
+      { id: "doctor", name: "ডাক্তার", nameEn: "Doctor" },
       { id: "electrician", name: "ইলেকট্রিশিয়ান", nameEn: "Electrician" },
       { id: "mechanic", name: "মিস্ত্রি", nameEn: "Mechanic" },
-      { id: "housekeeping", name: "হাউজকিপিং", nameEn: "Housekeeping" },
-      { id: "rickshaw-van", name: "রিকশা/ভ্যান", nameEn: "Rickshaw/Van" },
-      { id: "car-rental", name: "গাড়ি ভাড়া", nameEn: "Car Rental" },
-      { id: "painter", name: "রংমিস্ত্রি", nameEn: "Painter" }
+      { id: "car-service", name: "গাড়ি সার্ভিস", nameEn: "Car Service" },
+      { id: "legal-help", name: "আইন সহায়তা", nameEn: "Legal Help" },
+      { id: "pharmacy", name: "ওষুধ দোকান", nameEn: "Pharmacy" }
     ]
   },
   {
-    id: "essential-services",
-    name: "প্রয়োজনীয় সেবা",
-    nameEn: "Essential Services",
-    icon: "👨‍⚕️",
+    id: "tuition-jobs",
+    name: "টিউশন / চাকরি",
+    nameEn: "Tuition / Jobs",
+    icon: "💼",
+    color: "bg-indigo-100 text-indigo-700",
     subcategories: [
-      { id: "nearby-hospital", name: "নিকটস্থ হাসপাতাল", nameEn: "Nearby Hospital" },
-      { id: "ambulance", name: "অ্যাম্বুলেন্স", nameEn: "Ambulance" },
-      { id: "police-station", name: "থানা", nameEn: "Police Station" },
-      { id: "union-office", name: "ইউনিয়ন অফিস", nameEn: "Union Office" },
-      { id: "women-helpline", name: "নারী সহায়তা হেল্পলাইন", nameEn: "Women Support Helpline" },
-      { id: "emergency-hotline", name: "জরুরি হটলাইন", nameEn: "Emergency Hotline" }
+      { id: "tuition-needed", name: "টিউশন চাই", nameEn: "Tuition Needed" },
+      { id: "tuition-available", name: "টিউশন দিচ্ছি", nameEn: "Tuition Available" },
+      { id: "job-vacancy", name: "চাকরি আছে", nameEn: "Job Vacancy" },
+      { id: "job-wanted", name: "চাকরি চাই", nameEn: "Job Wanted" }
     ]
   },
   {
-    id: "community-info",
-    name: "কমিউনিটি তথ্য",
-    nameEn: "Community Info",
-    icon: "🗣️",
+    id: "agriculture-business",
+    name: "কৃষি / শিক্ষা / ব্যবসা",
+    nameEn: "Agriculture / Education / Business",
+    icon: "🌾",
+    color: "bg-green-100 text-green-700",
     subcategories: [
-      { id: "submit-info", name: "আমি তথ্য দিতে চাই", nameEn: "I Want to Submit Info" },
-      { id: "under-review", name: "যাচাই চলছে", nameEn: "Under Review" },
-      { id: "approved-info", name: "এপ্রুভড তথ্য", nameEn: "Approved Info" },
-      { id: "rejected-info", name: "বাতিল তথ্য", nameEn: "Rejected Info" },
-      { id: "volunteers", name: "স্থানীয় স্বেচ্ছাসেবক", nameEn: "Local Volunteers" },
-      { id: "tuition", name: "টিউশন চাই / দিচ্ছি", nameEn: "Tuition Needed/Available" },
-      { id: "women-products", name: "মহিলা প্রডাক্ট/গ্রুপ", nameEn: "Women Products/Groups" }
+      { id: "farming-tips", name: "কৃষি পরামর্শ", nameEn: "Farming Tips" },
+      { id: "crop-prices", name: "ফসলের দাম", nameEn: "Crop Prices" },
+      { id: "education-news", name: "শিক্ষা সংবাদ", nameEn: "Education News" },
+      { id: "business-info", name: "ব্যবসা তথ্য", nameEn: "Business Information" },
+      { id: "loan-info", name: "ঋণ তথ্য", nameEn: "Loan Information" }
     ]
   }
 ];
