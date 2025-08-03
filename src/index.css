@@ -17,6 +17,15 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 98%;
     --primary-glow: 142 76% 45%;
 
+    /* Category specific colors */
+    --emergency: 0 84% 60%;
+    --happening: 221 83% 53%;
+    --alerts: 25 95% 53%;
+    --weather: 188 95% 68%;
+    --services: 142 76% 36%;
+    --jobs: 262 83% 58%;
+    --business: 239 84% 67%;
+
     /* Accent - Bangladesh Red */
     --accent-red: 0 84% 50%;
     --accent-red-foreground: 0 0% 98%;

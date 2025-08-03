@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Search, Plus, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import CategoryBar from "@/components/CategoryBar";
+import CategoryCard from "@/components/CategoryCard";
+import SubcategoryCard from "@/components/SubcategoryCard";
 import PostCard from "@/components/PostCard";
 import LocationSelector from "@/components/LocationSelector";
 import { Category, Subcategory, Post } from "@/types/firebase";
@@ -126,13 +127,54 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Category Bar */}
-      <CategoryBar
-        onCategorySelect={handleCategorySelect}
-        onSubcategorySelect={handleSubcategorySelect}
-        selectedCategory={selectedCategory}
-        selectedSubcategory={selectedSubcategory}
-      />
+      {/* Category Grid */}
+      <div className="bg-card border-b">
+        <div className="container mx-auto px-4 py-6">
+          {!selectedCategory ? (
+            // Main Categories Grid
+            <div>
+              <h2 className="text-lg font-semibold mb-4 text-center">ক্যাটেগরি নির্বাচন করুন</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {categories.map((category) => (
+                  <CategoryCard
+                    key={category.id}
+                    category={category}
+                    isSelected={selectedCategory?.id === category.id}
+                    onClick={() => handleCategorySelect(category)}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            // Subcategories Grid
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ← ফিরে যান
+                </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{selectedCategory.icon}</span>
+                  <h2 className="text-lg font-semibold">{selectedCategory.name}</h2>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+                {selectedCategory.subcategories.map((subcategory) => (
+                  <SubcategoryCard
+                    key={subcategory.id}
+                    subcategory={subcategory}
+                    isSelected={selectedSubcategory?.id === subcategory.id}
+                    onClick={() => handleSubcategorySelect(subcategory)}
+                    categoryColor="bg-primary"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
