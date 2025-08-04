@@ -14,7 +14,192 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string
+          icon: string
+          id: string
+          name: string
+          name_en: string
+        }
+        Insert: {
+          created_at?: string
+          icon: string
+          id?: string
+          name: string
+          name_en: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string
+          id?: string
+          name?: string
+          name_en?: string
+        }
+        Relationships: []
+      }
+      posts: {
+        Row: {
+          approved_at: string | null
+          author_id: string
+          category_id: string
+          comments: number | null
+          content: string
+          created_at: string
+          district: string
+          division: string
+          feedback: string | null
+          id: string
+          image_url: string | null
+          likes: number | null
+          phone: string | null
+          status: string
+          subcategory_id: string
+          title: string
+          upazila: string
+          updated_at: string
+          views: number | null
+        }
+        Insert: {
+          approved_at?: string | null
+          author_id: string
+          category_id: string
+          comments?: number | null
+          content: string
+          created_at?: string
+          district: string
+          division: string
+          feedback?: string | null
+          id?: string
+          image_url?: string | null
+          likes?: number | null
+          phone?: string | null
+          status?: string
+          subcategory_id: string
+          title: string
+          upazila: string
+          updated_at?: string
+          views?: number | null
+        }
+        Update: {
+          approved_at?: string | null
+          author_id?: string
+          category_id?: string
+          comments?: number | null
+          content?: string
+          created_at?: string
+          district?: string
+          division?: string
+          feedback?: string | null
+          id?: string
+          image_url?: string | null
+          likes?: number | null
+          phone?: string | null
+          status?: string
+          subcategory_id?: string
+          title?: string
+          upazila?: string
+          updated_at?: string
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          contribution_score: number | null
+          created_at: string
+          display_name: string
+          district: string
+          division: string
+          id: string
+          is_verified: boolean | null
+          phone: string | null
+          upazila: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contribution_score?: number | null
+          created_at?: string
+          display_name: string
+          district: string
+          division: string
+          id?: string
+          is_verified?: boolean | null
+          phone?: string | null
+          upazila: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contribution_score?: number | null
+          created_at?: string
+          display_name?: string
+          district?: string
+          division?: string
+          id?: string
+          is_verified?: boolean | null
+          phone?: string | null
+          upazila?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subcategories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          name: string
+          name_en: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          name: string
+          name_en: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          name_en?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
