@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,9 +9,11 @@ import LocationSelector from '@/components/LocationSelector';
 import { ArrowLeft, Mail, Phone, Eye, EyeOff, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/useAuth';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { signUp, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -26,6 +28,13 @@ const Signup = () => {
     confirmPassword: '',
     location: null as { division: string; district: string; upazila: string } | null
   });
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/');
+    }
+  }, [user, loading, navigate]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -51,8 +60,8 @@ const Signup = () => {
       return false;
     }
 
-    if (signupType === 'phone' && !/^01[3-9]\d{8}$/.test(formData.phone)) {
-      toast.error('সঠিক ফোন নম্বর দিন (01XXXXXXXXX)');
+    if (signupType === 'phone') {
+      toast.error('বর্তমানে শুধুমাত্র ইমেইল দিয়ে সাইনআপ সম্ভব');
       return false;
     }
 
@@ -87,12 +96,27 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
-      // Here you would typically create account with Firebase
-      // For now, we'll simulate the signup
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const { error } = await signUp(formData.email, formData.password, {
+        display_name: formData.fullName,
+        phone: formData.phone,
+        division: formData.location?.division,
+        district: formData.location?.district,
+        upazila: formData.location?.upazila
+      });
       
-      toast.success('সফলভাবে অ্যাকাউন্ট তৈরি হয়েছে');
-      navigate('/');
+      if (error) {
+        if (error.message.includes('already registered')) {
+          toast.error('এই ইমেইল দিয়ে ইতিমধ্যে অ্যাকাউন্ট আছে');
+        } else if (error.message.includes('Password should be at least 6 characters')) {
+          toast.error('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে');
+        } else {
+          toast.error('অ্যাকাউন্ট তৈরিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+        }
+        return;
+      }
+      
+      toast.success('সফলভাবে অ্যাকাউন্ট তৈরি হয়েছে! ইমেইল যাচাই করুন।');
+      navigate('/login');
     } catch (error) {
       toast.error('অ্যাকাউন্ট তৈরিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
     } finally {

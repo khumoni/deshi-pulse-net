@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,9 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Mail, Phone, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { signIn, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loginType, setLoginType] = useState<'email' | 'phone'>('email');
@@ -19,6 +21,13 @@ const Login = () => {
     phone: '',
     password: ''
   });
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/');
+    }
+  }, [user, loading, navigate]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -42,12 +51,25 @@ const Login = () => {
       return;
     }
 
+    // Only support email login for now
+    if (loginType === 'phone') {
+      toast.error('বর্তমানে শুধুমাত্র ইমেইল দিয়ে লগইন সম্ভব');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Here you would typically authenticate with Firebase
-      // For now, we'll simulate the login
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const { error } = await signIn(formData.email, formData.password);
+      
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('ভুল ইমেইল বা পাসওয়ার্ড');
+        } else {
+          toast.error('লগইনে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+        }
+        return;
+      }
       
       toast.success('সফলভাবে লগইন হয়েছে');
       navigate('/');
