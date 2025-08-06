@@ -38,6 +38,21 @@ export type Database = {
         }
         Relationships: []
       }
+      Khumoni: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           approved_at: string | null
