@@ -4,15 +4,15 @@ import { supabase } from '@/integrations/supabase/client';
 export interface Category {
   id: string;
   name: string;
-  name_en: string;
+  nameEn: string;
   icon: string;
-  subcategories?: Subcategory[];
+  subcategories: Subcategory[];
 }
 
 export interface Subcategory {
   id: string;
   name: string;
-  name_en: string;
+  nameEn: string;
   category_id: string;
 }
 
@@ -45,10 +45,20 @@ export const useCategories = () => {
 
       if (subcategoriesError) throw subcategoriesError;
 
-      // Combine categories with their subcategories
+      // Combine categories with their subcategories and map to expected format
       const categoriesWithSubcategories = categoriesData.map(category => ({
-        ...category,
-        subcategories: subcategoriesData.filter(sub => sub.category_id === category.id)
+        id: category.id,
+        name: category.name,
+        nameEn: category.name_en,
+        icon: category.icon,
+        subcategories: subcategoriesData
+          .filter(sub => sub.category_id === category.id)
+          .map(sub => ({
+            id: sub.id,
+            name: sub.name,
+            nameEn: sub.name_en,
+            category_id: sub.category_id
+          }))
       }));
 
       setCategories(categoriesWithSubcategories);
