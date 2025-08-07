@@ -3,12 +3,15 @@ import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Plus, Moon, Sun, LogOut, User } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Search, Plus, Moon, Sun, LogOut, User, Mail } from "lucide-react";
 import { useTheme } from "next-themes";
 import CategoryCard from "@/components/CategoryCard";
 import SubcategoryCard from "@/components/SubcategoryCard";
 import PostCard from "@/components/PostCard";
+import EnhancedPostCard from "@/components/EnhancedPostCard";
 import LocationSelector from "@/components/LocationSelector";
+import HeroSection from "@/components/HeroSection";
 import { useCategories } from "@/hooks/useCategories";
 import type { Category, Subcategory } from "@/types/firebase";
 import { usePosts, Post } from "@/hooks/usePosts";
@@ -80,246 +83,291 @@ const Index = () => {
   const filteredPosts = posts;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-green-bangladesh to-green-bangladesh/80 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      {/* Enhanced Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">🇧🇩 স্থানীয় তথ্য কেন্দ্র</h1>
-              <p className="text-green-50 mt-1">আপনার এলাকার সকল তথ্য এক জায়গায়</p>
-            </div>
-            <div className="flex items-center gap-4">
+            <Link to="/" className="flex items-center space-x-3 group">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-green-bangladesh flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                <span className="text-white font-bold text-lg">স</span>
+              </div>
+              <span className="font-bold text-xl bg-gradient-to-r from-primary to-green-bangladesh bg-clip-text text-transparent">
+                স্থানীয় তথ্য কেন্দ্র
+              </span>
+            </Link>
+            
+            <div className="flex items-center space-x-4">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                className="rounded-full"
               >
-                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {theme === "dark" ? "🌞" : "🌙"}
               </Button>
               
-              {!authLoading && user && (
-                <Link to="/submit">
-                  <Button variant="secondary" size="sm" className="hidden md:flex">
-                    <Plus className="h-4 w-4 mr-2" />
-                    তথ্য যোগ করুন
-                  </Button>
-                </Link>
-              )}
-              
-              {!authLoading && (
-                user ? (
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                      <User className="mr-2 h-4 w-4" />
+              {user ? (
+                <div className="flex items-center space-x-3">
+                  <div className="hidden md:flex items-center space-x-2 px-3 py-2 rounded-lg bg-primary/5">
+                    <User className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">
                       {user.email?.split('@')[0]}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={handleSignOut}
-                      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      লগআউট
-                    </Button>
+                    </span>
                   </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Link to="/login">
-                      <Button variant="outline" size="sm" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                        লগইন
-                      </Button>
-                    </Link>
-                    <Link to="/signup">
-                      <Button variant="secondary" size="sm">
-                        সাইনআপ
-                      </Button>
-                    </Link>
-                  </div>
-                )
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSignOut}
+                    className="hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
+                  >
+                    <LogOut className="w-4 h-4 mr-1" />
+                    লগআউট
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Link to="/login">
+                    <Button variant="ghost" size="sm" className="hover:bg-primary/10">
+                      লগইন
+                    </Button>
+                  </Link>
+                  <Link to="/signup">
+                    <Button size="sm" className="bg-gradient-to-r from-primary to-green-bangladesh hover:from-primary/90 hover:to-green-bangladesh/90">
+                      সাইনআপ
+                    </Button>
+                  </Link>
+                </div>
               )}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Category Grid */}
-      <div className="bg-card border-b">
-        <div className="container mx-auto px-4 py-6">
-          {!selectedCategory ? (
-            // Main Categories Grid
-            <div>
-              <h2 className="text-lg font-semibold mb-4 text-center">ক্যাটেগরি নির্বাচন করুন</h2>
-              {categoriesLoading ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {[...Array(8)].map((_, i) => (
-                    <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {categories.map((category) => (
-                    <CategoryCard
-                      key={category.id}
-                      category={category}
-                      isSelected={selectedCategory?.id === category.id}
-                      onClick={() => handleCategorySelect(category)}
-                    />
-                  ))}
-                </div>
-              )}
+      {/* Hero Section */}
+      <HeroSection language="bn" />
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-12">
+        {/* Categories Section */}
+        <section className="mb-16">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-foreground mb-2">
+              তথ্যের ক্যাটেগরি
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              আপনার প্রয়োজনীয় তথ্যের ধরন বেছে নিন
+            </p>
+          </div>
+          
+          {categoriesLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-32 rounded-2xl" />
+              ))}
             </div>
           ) : (
-            // Subcategories Grid
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
+              {categories.map((category, index) => (
+                <div 
+                  key={category.id}
+                  className="animate-scale-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  ← ফিরে যান
-                </button>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{selectedCategory.icon}</span>
-                  <h2 className="text-lg font-semibold">{selectedCategory.name}</h2>
+                  <CategoryCard
+                    category={category}
+                    isSelected={selectedCategory?.id === category.id}
+                    onClick={() => handleCategorySelect(category)}
+                  />
                 </div>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-                {selectedCategory.subcategories?.map((subcategory) => (
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Subcategories */}
+        {selectedCategory && (
+          <section className="mb-16 animate-slide-up">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-foreground mb-2">
+                {selectedCategory.name} - উপ-ক্যাটেগরি
+              </h3>
+              <p className="text-muted-foreground">
+                আরও নির্দিষ্ট তথ্যের জন্য উপ-ক্যাটেগরি বেছে নিন
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {selectedCategory.subcategories.map((subcategory, index) => (
+                <div 
+                  key={subcategory.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
                   <SubcategoryCard
-                    key={subcategory.id}
                     subcategory={subcategory}
                     isSelected={selectedSubcategory?.id === subcategory.id}
                     onClick={() => handleSubcategorySelect(subcategory)}
                     categoryColor="bg-primary"
                   />
-                ))}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Enhanced Search Section */}
+        <div className="mb-12">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="এলাকার তথ্য, সেবা বা জরুরি খবর খুঁজুন..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 pr-4 h-14 text-lg rounded-xl border-2 border-border/50 focus:border-primary/50 bg-card/50 backdrop-blur-sm shadow-lg"
+              />
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                <Button size="sm" className="rounded-lg">
+                  খুঁজুন
+                </Button>
               </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
-        {/* Location and Search */}
-        <div className="space-y-6">
+        {/* Location Selector */}
+        <div className="mb-8">
           <LocationSelector
             onLocationSelect={handleLocationSelect}
             selectedLocation={selectedLocation}
           />
+        </div>
 
-          {/* Search Bar */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="তথ্য খুঁজুন..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Submit Button for Selected Category */}
-          {selectedCategory && user && (
-            <Card className="bg-gradient-to-r from-green-bangladesh/5 to-green-bangladesh/10 border-green-bangladesh/20">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-green-bangladesh">
-                      {selectedCategory.icon} {selectedCategory.name} বিভাগে তথ্য যোগ করুন
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      আপনার এলাকার {selectedCategory.name} সংক্রান্ত তথ্য শেয়ার করুন
-                    </p>
-                  </div>
-                  <Link to="/submit">
-                    <Button className="bg-green-bangladesh hover:bg-green-bangladesh/90">
-                      <Plus className="h-4 w-4 mr-2" />
-                      তথ্য যোগ করুন
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Posts Grid */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">
-                {selectedCategory ? `${selectedCategory.name} এর তথ্যসমূহ` : "সকল তথ্য"}
-                <span className="text-sm font-normal text-muted-foreground ml-2">
-                  ({filteredPosts.length}টি তথ্য)
-                </span>
-              </h2>
+        {/* Posts Section */}
+        <section>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-foreground mb-2">সর্বশেষ তথ্য</h2>
+              <p className="text-muted-foreground">আপনার এলাকার সাম্প্রতিক তথ্য এবং আপডেট</p>
             </div>
-
-            {postsLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
-                ))}
-              </div>
-            ) : filteredPosts.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <p className="text-muted-foreground text-lg">কোন তথ্য পাওয়া যায়নি</p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    অন্য এলাকা বা ক্যাটেগরি নির্বাচন করে দেখুন
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPosts.map((post) => (
-                  <PostCard
-                    key={post.id}
-                    post={{
-                      id: post.id,
-                      title: post.title,
-                      content: post.content,
-                      location: {
-                        division: post.division,
-                        district: post.district,
-                        upazila: post.upazila
-                      },
-                      category: post.categories?.name || '',
-                      subcategory: post.subcategories?.name || '',
-                      authorId: post.author_id,
-                      authorName: post.profiles?.display_name || 'অজানা',
-                      phone: post.phone,
-                      imageUrl: post.image_url,
-                      status: post.status as 'pending' | 'approved' | 'rejected',
-                      createdAt: new Date(post.created_at).getTime(),
-                      analytics: {
-                        views: post.views,
-                        likes: post.likes,
-                        comments: post.comments
-                      }
-                    }}
-                    onLike={handleLike}
-                    onView={handleView}
-                  />
-                ))}
-              </div>
+            {user && (
+              <Link to="/submit">
+                <Button size="lg" className="bg-gradient-to-r from-primary to-green-bangladesh hover:from-primary/90 hover:to-green-bangladesh/90 shadow-lg">
+                  <Plus className="w-5 h-5 mr-2" />
+                  তথ্য যোগ করুন
+                </Button>
+              </Link>
             )}
           </div>
-        </div>
+
+          {postsLoading ? (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <Skeleton className="h-64 rounded-2xl mb-4" />
+                  <Skeleton className="h-4 rounded mb-2" />
+                  <Skeleton className="h-4 rounded w-3/4" />
+                </div>
+              ))}
+            </div>
+          ) : filteredPosts.length === 0 ? (
+            <div className="text-center py-20 animate-fade-in">
+              <div className="max-w-md mx-auto">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Search className="w-12 h-12 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">কোনো তথ্য পাওয়া যায়নি</h3>
+                <p className="text-muted-foreground mb-6">
+                  এই ক্যাটেগরিতে এখনো কোনো তথ্য নেই। আপনি প্রথম হয়ে তথ্য শেয়ার করুন।
+                </p>
+                {user && (
+                  <Link to="/submit">
+                    <Button size="lg" className="bg-gradient-to-r from-primary to-green-bangladesh">
+                      <Plus className="w-5 h-5 mr-2" />
+                      প্রথম তথ্যটি যোগ করুন
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 animate-fade-in">
+              {filteredPosts.map((post, index) => (
+                <div 
+                  key={post.id}
+                  className="animate-slide-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <EnhancedPostCard
+                    post={post}
+                    onLike={handleLike}
+                    onView={handleView}
+                    language="bn"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-muted/50 border-t mt-12">
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground">
-            স্থানীয় তথ্য কেন্দ্র - বাংলাদেশের জন্য তৈরি
-          </p>
+      {/* Enhanced Footer */}
+      <footer className="relative mt-20 bg-gradient-to-br from-primary/5 via-background to-primary/10 border-t border-border/50">
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {/* Brand Section */}
+            <div className="text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start space-x-3 mb-4">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-green-bangladesh flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">স</span>
+                </div>
+                <span className="font-bold text-xl bg-gradient-to-r from-primary to-green-bangladesh bg-clip-text text-transparent">
+                  স্থানীয় তথ্য কেন্দ্র
+                </span>
+              </div>
+              <p className="text-muted-foreground">
+                আপনার এলাকার নির্ভরযোগ্য তথ্যের উৎস
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="text-center">
+              <h4 className="font-semibold text-foreground mb-4">দ্রুত লিংক</h4>
+              <div className="space-y-2">
+                <Link to="/about" className="block text-muted-foreground hover:text-primary transition-colors">
+                  আমাদের সম্পর্কে
+                </Link>
+                <Link to="/contact" className="block text-muted-foreground hover:text-primary transition-colors">
+                  যোগাযোগ
+                </Link>
+                <Link to="/privacy" className="block text-muted-foreground hover:text-primary transition-colors">
+                  গোপনীয়তা নীতি
+                </Link>
+              </div>
+            </div>
+
+            {/* Contact Info */}
+            <div className="text-center md:text-right">
+              <h4 className="font-semibold text-foreground mb-4">যোগাযোগ</h4>
+              <div className="space-y-2">
+                <p className="text-muted-foreground">
+                  <Mail className="w-4 h-4 inline mr-2" />
+                  info@localinfo.bd
+                </p>
+                <p className="text-muted-foreground">
+                  📱 +৮৮০ ১৭XX XXX XXX
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <div className="text-center pt-8 border-t border-border/50">
+            <p className="text-muted-foreground">
+              © ২০২৪ স্থানীয় তথ্য কেন্দ্র। সকল অধিকার সংরক্ষিত।
+            </p>
+          </div>
         </div>
       </footer>
     </div>
