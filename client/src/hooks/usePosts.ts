@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 export interface Post {
   id: string;
@@ -8,28 +8,28 @@ export interface Post {
   division: string;
   district: string;
   upazila: string;
-  category_id: string;
-  subcategory_id: string;
-  author_id: string;
+  categoryId: string;
+  subcategoryId: string;
+  authorId: string;
   phone?: string;
-  image_url?: string;
+  imageUrl?: string;
   status: string;
   views: number;
   likes: number;
   comments: number;
-  created_at: string;
-  approved_at?: string;
-  feedback?: string;
-  profiles?: {
-    display_name: string;
+  createdAt: string;
+  updatedAt: string;
+  // Related data
+  author: {
+    displayName: string;
   };
-  categories?: {
+  category: {
     name: string;
-    name_en: string;
+    nameEn: string;
   };
-  subcategories?: {
+  subcategory: {
     name: string;
-    name_en: string;
+    nameEn: string;
   };
 }
 
@@ -44,112 +44,66 @@ interface PostFilters {
 }
 
 export const usePosts = (filters: PostFilters = {}) => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchPosts();
-  }, [filters]);
-
-  const fetchPosts = async () => {
-    try {
-      setLoading(true);
-      
-      let query = supabase
-        .from('posts')
-        .select(`
-          *,
-          profiles!posts_author_id_fkey (display_name),
-          categories!posts_category_id_fkey (name, name_en),
-          subcategories!posts_subcategory_id_fkey (name, name_en)
-        `)
-        .order('created_at', { ascending: false });
-
-      // Apply filters
-      if (filters.status) {
-        query = query.eq('status', filters.status);
-      } else {
-        // Default to approved posts only
-        query = query.eq('status', 'approved');
-      }
-
-      if (filters.category_id) {
-        query = query.eq('category_id', filters.category_id);
-      }
-
-      if (filters.subcategory_id) {
-        query = query.eq('subcategory_id', filters.subcategory_id);
-      }
-
-      if (filters.division) {
-        query = query.eq('division', filters.division);
-      }
-
-      if (filters.district) {
-        query = query.eq('district', filters.district);
-      }
-
-      if (filters.upazila) {
-        query = query.eq('upazila', filters.upazila);
-      }
-
-      if (filters.search) {
-        query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      setPosts(data || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
+  const queryClient = useQueryClient();
+  
+  // Build query parameters
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      params.append(key, value);
     }
-  };
+  });
+  
+  const queryString = params.toString();
+  const url = `/api/posts${queryString ? `?${queryString}` : ''}`;
 
-  const updatePost = async (postId: string, updates: Partial<Post>) => {
-    try {
-      const { error } = await supabase
-        .from('posts')
-        .update(updates)
-        .eq('id', postId);
+  const {
+    data: posts = [],
+    isLoading: loading,
+    error
+  } = useQuery({
+    queryKey: ['/api/posts', filters],
+    queryFn: () => apiRequest(url),
+  });
 
-      if (error) throw error;
-
-      // Update local state
-      setPosts(prev => prev.map(post => 
-        post.id === postId ? { ...post, ...updates } : post
-      ));
-
-      return { error: null };
-    } catch (err) {
-      return { error: err instanceof Error ? err.message : 'An error occurred' };
+  // Like post mutation
+  const likePostMutation = useMutation({
+    mutationFn: (postId: string) => apiRequest(`/api/posts/${postId}/like`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
     }
-  };
+  });
+
+  // View post mutation
+  const viewPostMutation = useMutation({
+    mutationFn: (postId: string) => apiRequest(`/api/posts/${postId}/view`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+    }
+  });
 
   const likePost = async (postId: string) => {
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-
-    return updatePost(postId, { likes: post.likes + 1 });
+    try {
+      await likePostMutation.mutateAsync(postId);
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : 'Failed to like post' };
+    }
   };
 
   const viewPost = async (postId: string) => {
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-
-    return updatePost(postId, { views: post.views + 1 });
+    try {
+      await viewPostMutation.mutateAsync(postId);
+      return { error: null };
+    } catch (err) {
+      return { error: err instanceof Error ? err.message : 'Failed to update view count' };
+    }
   };
 
   return {
     posts,
     loading,
-    error,
-    refetch: fetchPosts,
-    updatePost,
+    error: error?.message || null,
     likePost,
     viewPost
   };

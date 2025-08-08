@@ -57,16 +57,16 @@ const Index = () => {
   };
 
   const handleLike = async (postId: string) => {
-    const { error } = await likePost(postId);
-    if (error) {
+    const result = await likePost(postId);
+    if (result?.error) {
       toast.error('লাইক করতে সমস্যা হয়েছে');
     }
   };
 
   const handleView = async (postId: string) => {
-    const { error } = await viewPost(postId);
-    if (error) {
-      console.error('View update error:', error);
+    const result = await viewPost(postId);
+    if (result?.error) {
+      console.error('View update error:', result.error);
     }
   };
 
@@ -168,7 +168,7 @@ const Index = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
-              {categories.map((category, index) => (
+              {categories.map((category: any, index: number) => (
                 <div 
                   key={category.id}
                   className="animate-scale-in"
@@ -293,7 +293,7 @@ const Index = () => {
             </div>
           ) : (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 animate-fade-in">
-              {filteredPosts.map((post, index) => (
+              {filteredPosts.map((post: any, index: number) => (
                 <div 
                   key={post.id}
                   className="animate-slide-up"
