@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { bangladeshLocations, getDivisions, getDistricts, getUpazilas } from "@/data/bangladeshLocations";
+import { bangladeshLocations } from "@/data/locations";
 import { MapPin } from "lucide-react";
 
 interface LocationSelectorProps {
@@ -45,12 +45,12 @@ const LocationSelector = ({ onLocationSelect, selectedLocation }: LocationSelect
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Division Selection */}
           <Select value={selectedDivision} onValueChange={handleDivisionChange}>
-            <SelectTrigger className="h-12">
+            <SelectTrigger>
               <SelectValue placeholder="বিভাগ নির্বাচন করুন" />
             </SelectTrigger>
             <SelectContent>
-              {getDivisions().map((division) => (
-                <SelectItem key={division.key} value={division.key}>
+              {Object.entries(bangladeshLocations.divisions).map(([key, division]) => (
+                <SelectItem key={key} value={key}>
                   {division.name}
                 </SelectItem>
               ))}
@@ -63,12 +63,12 @@ const LocationSelector = ({ onLocationSelect, selectedLocation }: LocationSelect
             onValueChange={handleDistrictChange}
             disabled={!selectedDivision}
           >
-            <SelectTrigger className="h-12">
+            <SelectTrigger>
               <SelectValue placeholder="জেলা নির্বাচন করুন" />
             </SelectTrigger>
             <SelectContent>
-              {selectedDivision && getDistricts(selectedDivision).map((district) => (
-                <SelectItem key={district.key} value={district.key}>
+              {selectedDivision && Object.entries(bangladeshLocations.divisions[selectedDivision as keyof typeof bangladeshLocations.divisions].districts).map(([key, district]) => (
+                <SelectItem key={key} value={key}>
                   {district.name}
                 </SelectItem>
               ))}
@@ -80,14 +80,14 @@ const LocationSelector = ({ onLocationSelect, selectedLocation }: LocationSelect
             onValueChange={handleUpazilaChange}
             disabled={!selectedDistrict}
           >
-            <SelectTrigger className="h-12">
+            <SelectTrigger>
               <SelectValue placeholder="উপজেলা নির্বাচন করুন" />
             </SelectTrigger>
             <SelectContent>
               {selectedDistrict && selectedDivision && 
-                getUpazilas(selectedDivision, selectedDistrict).map((upazila) => (
-                  <SelectItem key={upazila.key} value={upazila.name}>
-                    {upazila.name}
+                (bangladeshLocations.divisions as any)[selectedDivision]?.districts?.[selectedDistrict]?.upazilas?.map((upazila: string) => (
+                  <SelectItem key={upazila} value={upazila}>
+                    {upazila}
                   </SelectItem>
                 ))
               }
@@ -96,14 +96,8 @@ const LocationSelector = ({ onLocationSelect, selectedLocation }: LocationSelect
         </div>
 
         {selectedLocation && (
-          <div className="text-sm text-muted-foreground bg-primary/5 p-4 rounded-lg border border-primary/20">
-            <div className="flex items-center gap-2 mb-2">
-              <MapPin className="h-4 w-4 text-primary" />
-              <strong className="text-foreground">নির্বাচিত এলাকা:</strong>
-            </div>
-            <p className="text-foreground font-medium">
-              {selectedLocation.upazila}, {selectedLocation.district}, {bangladeshLocations.divisions[selectedLocation.division as keyof typeof bangladeshLocations.divisions]?.name}
-            </p>
+          <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+            <strong>নির্বাচিত এলাকা:</strong> {selectedLocation.upazila}, {selectedLocation.district}, {bangladeshLocations.divisions[selectedLocation.division as keyof typeof bangladeshLocations.divisions]?.name}
           </div>
         )}
       </CardContent>

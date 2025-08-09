@@ -4,15 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Moon, Sun, LogOut, User, Mail, Filter, Grid3X3, List } from "lucide-react";
+import { Search, Plus, Moon, Sun, LogOut, User, Mail } from "lucide-react";
 import { useTheme } from "next-themes";
 import CategoryCard from "@/components/CategoryCard";
 import SubcategoryCard from "@/components/SubcategoryCard";
 import PostCard from "@/components/PostCard";
 import EnhancedPostCard from "@/components/EnhancedPostCard";
-import EnhancedCategoryCard from "@/components/EnhancedCategoryCard";
-import UserProfileDropdown from "@/components/UserProfileDropdown";
 import LocationSelector from "@/components/LocationSelector";
 import HeroSection from "@/components/HeroSection";
 import { useCategories } from "@/hooks/useCategories";
@@ -20,7 +17,6 @@ import type { Category, Subcategory } from "@/types/firebase";
 import { usePosts, Post } from "@/hooks/usePosts";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
 
 const Index = () => {
   const { theme, setTheme } = useTheme();
@@ -29,8 +25,6 @@ const Index = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{ division: string; district: string; upazila: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch categories and posts from Supabase
   const { categories, loading: categoriesLoading } = useCategories();
@@ -63,16 +57,16 @@ const Index = () => {
   };
 
   const handleLike = async (postId: string) => {
-    const result = await likePost(postId);
-    if (result?.error) {
+    const { error } = await likePost(postId);
+    if (error) {
       toast.error('লাইক করতে সমস্যা হয়েছে');
     }
   };
 
   const handleView = async (postId: string) => {
-    const result = await viewPost(postId);
-    if (result?.error) {
-      console.error('View update error:', result.error);
+    const { error } = await viewPost(postId);
+    if (error) {
+      console.error('View update error:', error);
     }
   };
 
@@ -104,39 +98,42 @@ const Index = () => {
             </Link>
             
             <div className="flex items-center space-x-4">
-              {/* Theme Toggle */}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="rounded-full hover:bg-accent/50 transition-colors"
+                className="rounded-full"
               >
-                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {theme === "dark" ? "🌞" : "🌙"}
               </Button>
               
-              {/* Create Post Button */}
-              <Link to="/submit">
-                <Button 
-                  size="sm" 
-                  className="bg-gradient-to-r from-primary to-green-bangladesh hover:from-primary/90 hover:to-green-bangladesh/90 shadow-md hover:shadow-lg transition-all duration-200"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">পোস্ট করুন</span>
-                  <span className="sm:hidden">পোস্ট</span>
-                </Button>
-              </Link>
-              
               {user ? (
-                <UserProfileDropdown onSignOut={handleSignOut} />
+                <div className="flex items-center space-x-3">
+                  <div className="hidden md:flex items-center space-x-2 px-3 py-2 rounded-lg bg-primary/5">
+                    <User className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium text-foreground">
+                      {user.email?.split('@')[0]}
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSignOut}
+                    className="hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
+                  >
+                    <LogOut className="w-4 h-4 mr-1" />
+                    লগআউট
+                  </Button>
+                </div>
               ) : (
                 <div className="flex items-center space-x-2">
                   <Link to="/login">
-                    <Button variant="ghost" size="sm" className="hover:bg-primary/10 transition-colors">
+                    <Button variant="ghost" size="sm" className="hover:bg-primary/10">
                       লগইন
                     </Button>
                   </Link>
                   <Link to="/signup">
-                    <Button size="sm" className="bg-gradient-to-r from-primary to-green-bangladesh hover:from-primary/90 hover:to-green-bangladesh/90 shadow-md">
+                    <Button size="sm" className="bg-gradient-to-r from-primary to-green-bangladesh hover:from-primary/90 hover:to-green-bangladesh/90">
                       সাইনআপ
                     </Button>
                   </Link>
@@ -152,109 +149,100 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
-        {/* Enhanced Search and Filter Bar */}
-        <section className="mb-8">
-          <div className="flex flex-col lg:flex-row gap-4 items-center">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="এখানে অনুসন্ধান করুন... (যেমন: ডাক্তার, চাকরি, বিদ্যুৎ)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-3 text-base border-2 hover:border-primary/50 focus:border-primary rounded-xl bg-background/50 backdrop-blur-sm"
-              />
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button
-                variant={showFilters ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className="transition-all duration-200"
-              >
-                <Filter className="h-4 w-4 mr-1" />
-                ফিল্টার
-              </Button>
-              
-              <div className="flex items-center border rounded-lg p-1 bg-background">
-                <Button
-                  variant={viewMode === 'grid' ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className="h-8 w-8 p-0"
-                >
-                  <Grid3X3 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className="h-8 w-8 p-0"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-          
-          {/* Advanced Filters */}
-          <AnimatePresence>
-            {showFilters && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="mt-4 p-4 bg-card rounded-xl border overflow-hidden"
-              >
-                <LocationSelector 
-                  onLocationSelect={handleLocationSelect}
-                  selectedLocation={selectedLocation}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </section>
-
-        {/* Enhanced Categories Section */}
+        {/* Categories Section */}
         <section className="mb-16">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-foreground mb-2">
-                তথ্যের ক্যাটেগরি
-              </h2>
-              <p className="text-muted-foreground text-lg">
-                আপনার প্রয়োজনীয় তথ্যের ধরন বেছে নিন
-              </p>
-            </div>
-            <Badge variant="secondary" className="text-sm">
-              {categories.length}টি ক্যাটেগরি
-            </Badge>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-foreground mb-2">
+              তথ্যের ক্যাটেগরি
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              আপনার প্রয়োজনীয় তথ্যের ধরন বেছে নিন
+            </p>
           </div>
           
           {categoriesLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-48 rounded-2xl" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-32 rounded-2xl" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {categories.map((category: any, index: number) => (
-                <EnhancedCategoryCard
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
+              {categories.map((category, index) => (
+                <div 
                   key={category.id}
-                  category={category}
-                  isSelected={selectedCategory?.id === category.id}
-                  onCategoryClick={() => handleCategorySelect(category)}
-                  onSubcategoryClick={handleSubcategorySelect}
-                  selectedSubcategory={selectedSubcategory}
-                />
+                  className="animate-scale-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <CategoryCard
+                    category={category}
+                    isSelected={selectedCategory?.id === category.id}
+                    onClick={() => handleCategorySelect(category)}
+                  />
+                </div>
               ))}
             </div>
           )}
         </section>
 
+        {/* Subcategories */}
+        {selectedCategory && (
+          <section className="mb-16 animate-slide-up">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-foreground mb-2">
+                {selectedCategory.name} - উপ-ক্যাটেগরি
+              </h3>
+              <p className="text-muted-foreground">
+                আরও নির্দিষ্ট তথ্যের জন্য উপ-ক্যাটেগরি বেছে নিন
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {selectedCategory.subcategories.map((subcategory, index) => (
+                <div 
+                  key={subcategory.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <SubcategoryCard
+                    subcategory={subcategory}
+                    isSelected={selectedSubcategory?.id === subcategory.id}
+                    onClick={() => handleSubcategorySelect(subcategory)}
+                    categoryColor="bg-primary"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
+        {/* Enhanced Search Section */}
+        <div className="mb-12">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="এলাকার তথ্য, সেবা বা জরুরি খবর খুঁজুন..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 pr-4 h-14 text-lg rounded-xl border-2 border-border/50 focus:border-primary/50 bg-card/50 backdrop-blur-sm shadow-lg"
+              />
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                <Button size="sm" className="rounded-lg">
+                  খুঁজুন
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Location Selector */}
+        <div className="mb-8">
+          <LocationSelector
+            onLocationSelect={handleLocationSelect}
+            selectedLocation={selectedLocation}
+          />
+        </div>
 
         {/* Posts Section */}
         <section>
@@ -305,7 +293,7 @@ const Index = () => {
             </div>
           ) : (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 animate-fade-in">
-              {filteredPosts.map((post: any, index: number) => (
+              {filteredPosts.map((post, index) => (
                 <div 
                   key={post.id}
                   className="animate-slide-up"
