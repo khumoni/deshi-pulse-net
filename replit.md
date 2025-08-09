@@ -43,9 +43,10 @@ Key relationships include category-to-subcategory (one-to-many), profile-to-post
 - **Authorization Levels**: Basic user roles with admin panel functionality for post approval
 
 ### Location System
-- **Geographic Structure**: Three-tier Bangladesh administrative divisions (Division → District → Upazila)
-- **Filtering**: Multi-level location filtering for content discovery
-- **Data Structure**: Nested object structure in frontend with normalized database relations in backend
+- **Geographic Structure**: Complete Bangladesh administrative divisions with all 8 divisions, 64 districts, and 500+ upazilas
+- **Special Areas**: Includes Dhaka North City Corporation and Dhaka South City Corporation in Dhaka division
+- **Filtering**: Three-tier location filtering system (Division → District → Upazila) for precise content discovery
+- **Data Structure**: Comprehensive location data in `/client/src/data/bangladeshLocations.ts` with helper functions for easy access
 
 ### Content Management
 - **Post Lifecycle**: Create → Pending → Approved/Rejected workflow
